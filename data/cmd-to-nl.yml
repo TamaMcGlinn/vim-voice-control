@@ -7,8 +7,6 @@ vars:
         - (class|model|mixin)
     SELECTION:
         - (selection|text|content)
-    REGISTER:
-        - (register|clipboard)
     FILE:
         - (file|path)
     VOICE_CTRL:
@@ -48,17 +46,34 @@ SELECT_CLASS_LINES ID(c) UINT(x) UINT(y):
     - select CLASS {c}( from)? LINE_NUMBER {x} to( (LINE_NUMBER|number))? {y}
 
 COPY_TO_REGISTER:
-    - copy( SELECTION)?( to (REGISTER|main register))?
+    - copy( SELECTION)?( to register)?
 
-COPY_TO_REGISTER ID(r):
-    - copy( SELECTION)? to REGISTER {r}
+COPY_TO_REGISTER REG(r):
+    - copy( SELECTION)? to register {r}
+    - copy( SELECTION)? to {r} register
 
 PASTE_FROM_REGISTER:
-    - paste( content)?( from (REGISTER|main register))?
+    - paste( content)?( from register)?
 
-PASTE_FROM_REGISTER ID(r):
-    - paste {r}
-    - paste( content)? from( REGISTER)? {r}
+PASTE_FROM_REGISTER REG(r):
+    - paste {r}( register)?
+    - paste( register)? {r}
+    - paste( content)? from( register)? {r}
+    - paste( content)? from {r}( register)?
+
+PASTE_FROM_REGISTER UINT(x):
+    - paste( content)?( from register)? {x} times
+    - paste( content)? {x} times from register
+
+PASTE_FROM_REGISTER REG(r) UINT(x):
+    - paste {r}( register)? {x} times
+    - paste( register)? {r} {x} times
+    - paste( content)? from( register)? {r} {x} times
+    - paste( content)? from {r}( register)? {x} times
+    - paste {x} times {r}( register)?
+    - paste {x} times( register)? {r}
+    - paste {x} times( content)? from( register)? {r}
+    - paste {x} times( content)? from {r}( register)?
 
 OPEN_FILE PATH(f):
     - open( FILE)? {f}
@@ -84,6 +99,12 @@ NEXT_TAB:
 
 PREV_TAB:
     - prev(ious)? tab
+
+UNDO:
+    - undo( last action)?
+
+REDO:
+    - redo
 
 SMART_COMPLETE:
     - (smart|codex) (complete|carry on)

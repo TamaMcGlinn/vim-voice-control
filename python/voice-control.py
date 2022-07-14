@@ -22,6 +22,18 @@ class InvalidCommand(Exception):
 
 class NvimAPI:
 
+    REG_UNNAMED = '"'
+    REG_SMALL_DELETE = '-'
+    REG_COMMAND = ':'
+    REG_INSERT = '.'
+    REG_FILE = '%'
+    REG_ALTERNATE_BUFFER = '#'
+    REG_EXPRESSION = '='
+    REG_GUI_SELECTION = '*'
+    REG_GUI_CLIPBOARD = '+'
+    REG_BLACK_HOLE = '_'
+    REG_SEARCH = '/'
+
     def __init__(self, nvim):
         self.nvim = nvim
 
@@ -49,28 +61,83 @@ class NvimAPI:
         self.nvim.feedkeys('gT')
 
     def copy_to_register(self, register=None):
-        if register is not None:
-            raise NotImplementedError
-        self.nvim.feedkeys('y')
+        if register is None:
+            self.nvim.feedkeys('y')
+        else:
+            self.nvim.feedkeys(f'"{register}y')
 
-    def paste_from_register(self, register=None):
+    def paste_from_register(self, register=None, times=None):
+        keys = 'p'
         if register is not None:
-            raise NotImplementedError
-        self.nvim.feedkeys('p')
+            keys = f'"{register}{keys}'
+        if times is not None:
+            keys = f'{times}{keys}'
+        self.nvim.feedkeys(keys)
+
+
+REGISTERS_ALIASES = {
+    'main': NvimAPI.REG_UNNAMED,
+    'unnamed': NvimAPI.REG_UNNAMED,
+    'insert': NvimAPI.REG_INSERT,
+    'file': NvimAPI.REG_FILE,
+    'path': NvimAPI.REG_FILE,
+    'current file': NvimAPI.REG_FILE,
+    'current path': NvimAPI.REG_FILE,
+    'command': NvimAPI.REG_COMMAND,
+    'command line': NvimAPI.REG_COMMAND,
+    'last command': NvimAPI.REG_COMMAND,
+    'last command line': NvimAPI.REG_COMMAND,
+    'alternate file': NvimAPI.REG_ALTERNATE_BUFFER,
+    'alternate buffer': NvimAPI.REG_ALTERNATE_BUFFER,
+    'expression': NvimAPI.REG_EXPRESSION,
+    'last expression': NvimAPI.REG_EXPRESSION,
+    'search': NvimAPI.REG_SEARCH,
+    'last search': NvimAPI.REG_SEARCH,
+    'delete': NvimAPI.REG_SMALL_DELETE,
+    'small delete': NvimAPI.REG_SMALL_DELETE,
+    'selection': NvimAPI.REG_GUI_SELECTION,
+    'clipboard': NvimAPI.REG_GUI_CLIPBOARD,
+    'black hole': NvimAPI.REG_BLACK_HOLE,
+    'void': NvimAPI.REG_BLACK_HOLE,
+    'zero': '0',
+    'one': '1',
+    'two': '2',
+    'three': '3',
+    'four': '4',
+    'five': '5',
+    'six': '6',
+    'seven': '7',
+    'eigh': '8',
+    'nine': '9',
+    'first': '1',
+    'second': '2',
+    'third': '3',
+    'fourth': '4',
+    'fifth': '5',
+    'sixth': '6',
+    'seventh': '7',
+    'eighth': '8',
+    'nineth': '9',
+}
+
 
 TYPE_TO_REGEX = {
     'UINT': r'\d+',
     'INT': r'-?\d+',
     'ID': '.+',
     'PATH': '.+',
+    'REG': '.+',
 }
+
 
 TYPE_CONVERSION = {
     'UINT': int,
     'INT': int,
     'ID': lambda x: re.sub('\s+', '_', x),
     'PATH': lambda x: re.sub('\s+', '/', x),
+    'REG': lambda x: REGISTERS_ALIASES.get(x.lower(), x)[0]
 }
+
 
 def param_to_regex(i, argtypes):
     def replacer(m):
@@ -210,6 +277,12 @@ class VoiceControl(NvimAPI):
                     time.sleep(3)
             except StopIteration:
                 break
+
+    def cmd_paste_from_register(self, register=None, times=None):
+        if times is None and isinstance(register, int):
+            # Allow to pass "times" as first argument when register is not given
+            register, times = times, register
+        self.paste_from_register(register, times)
 
     def cmd_smart_complete(self):
         raise NotImplementedError
