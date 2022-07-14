@@ -1,3 +1,4 @@
+# Copyright (c) 2022 Antoine Pinsard
 import re
 import time
 from pathlib import Path
