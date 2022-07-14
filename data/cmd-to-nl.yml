@@ -1,0 +1,97 @@
+vars:
+    LINE_NUMBER:
+        - (line|row)s?( numbers?)?
+    FUNC:
+        - (function|method)
+    CLASS:
+        - (class|model|mixin)
+    SELECTION:
+        - (selection|text|content)
+    REGISTER:
+        - (register|clipboard)
+    FILE:
+        - (file|path)
+    VOICE_CTRL:
+        - voice (control|command)
+
+GOTO_LINE UINT(x):
+    - go to LINE_NUMBER {x}
+
+SELECT_LINES UINT(x):
+    - select LINE_NUMBER {x}
+
+SELECT_LINES UINT(x) UINT(y):
+    - select( from)? LINE_NUMBER {x} to( (LINE_NUMBER|number))? {y}
+
+SELECT_FUNC_LINES ID(f) UINT(x):
+    - select LINE_NUMBER {x} of FUNC {f}
+    - select LINE_NUMBER {x} of {f} FUNC
+    - select {f} FUNC LINE_NUMBER {x}
+    - select FUNC {f} LINE_NUMBER {x}
+
+SELECT_FUNC_LINES ID(f) UINT(x) UINT(y):
+    - select( from)? LINE_NUMBER {x} to( (LINE_NUMBER|number))? {y} of FUNC {f}
+    - select( from)? LINE_NUMBER {x} to( (LINE_NUMBER|number))? {y} of {f} FUNC
+    - select {f} FUNC( from)? LINE_NUMBER {x} to( (LINE_NUMBER|number))? {y}
+    - select FUNC {f}( from)? LINE_NUMBER {x} to( (LINE_NUMBER|number))? {y}
+
+SELECT_CLASS_LINES ID(c) UINT(x):
+    - select LINE_NUMBER {x} of CLASS {c}
+    - select LINE_NUMBER {x} of {c} CLASS
+    - select {c} CLASS LINE_NUMBER {x}
+    - select CLASS {c} LINE_NUMBER {x}
+
+SELECT_CLASS_LINES ID(c) UINT(x) UINT(y):
+    - select( from)? LINE_NUMBER {x} to( (LINE_NUMBER|number))? {y} of CLASS {c}
+    - select( from)? LINE_NUMBER {x} to( (LINE_NUMBER|number))? {y} of {c} CLASS
+    - select {c} CLASS( from)? LINE_NUMBER {x} to( (LINE_NUMBER|number))? {y}
+    - select CLASS {c}( from)? LINE_NUMBER {x} to( (LINE_NUMBER|number))? {y}
+
+COPY_TO_REGISTER:
+    - copy( SELECTION)?( to (REGISTER|main register))?
+
+COPY_TO_REGISTER ID(r):
+    - copy( SELECTION)? to REGISTER {r}
+
+PASTE_FROM_REGISTER:
+    - paste( content)?( from (REGISTER|main register))?
+
+PASTE_FROM_REGISTER ID(r):
+    - paste {r}
+    - paste( content)? from( REGISTER)? {r}
+
+OPEN_FILE PATH(f):
+    - open( FILE)? {f}
+
+OPEN_FILE PATH(f) ID(TAB):
+    - open( FILE)? {f} (in|as)( new)? tab
+
+OPEN_FILE PATH(f) ID(BUFFER):
+    - open( FILE)? {f} (in|as)( new)? buffer
+
+OPEN_FILE PATH(f) ID(HSPLIT):
+    - open( FILE)? {f} (in|as)( new)? horizontal split
+    - open( FILE)? {f} horizontally
+    - split horizontally to open( FILE)? {f}
+
+OPEN_FILE PATH(f) ID(VSPLIT):
+    - open( FILE)? {f} (in|as)( new)? vertical split
+    - open( FILE)? {f} vertically
+    - split vertically to open( FILE)? {f}
+
+NEXT_TAB:
+    - (go to )?next tab
+
+PREV_TAB:
+    - prev(ious)? tab
+
+SMART_COMPLETE:
+    - (smart|codex) (complete|carry on)
+
+SMART_EDIT:
+    - (smart|codex) (edit|rewrite)
+
+VVC_OFF:
+    - VOICE_CTRL (off|done)
+    - (turn off|stop) VOICE_CTRL
+    - thank you
